@@ -1,11 +1,13 @@
 const host = process.env.HOST || '0.0.0.0';
-const port = process.env.PORT || 8080;
+const port = parseInt(process.env.PORT || '8080', 10);
 
 require('cors-anywhere').createServer({
-  originWhitelist: [],        // allow all origins (lock this down to your domain later)
-  requireHeader: [],          // no required headers — browser fetches work without Origin
+  originWhitelist: [],          // allow all origins
+  requireHeader: ['origin', 'x-requested-with'],  // basic abuse guard
   removeHeaders: ['cookie', 'cookie2'],
-  setHeaders: { 'X-Proxy': 'fred-explorer' },
+  httpProxyOptions: {
+    xfwd: false,                // don't forward client IP to FRED
+  },
 }).listen(port, host, () => {
   console.log(`CORS proxy running on ${host}:${port}`);
 });
